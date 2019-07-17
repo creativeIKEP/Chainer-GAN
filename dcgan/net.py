@@ -33,7 +33,7 @@ class Generator(chainer.Chain):
         h = F.relu(self.bn3(self.dc3(h)))
         h = F.relu(self.bn4(self.dc4(h)))
         h = F.relu(self.bn5(self.dc5(h)))
-        x = F.sigmoid(self.dc6(h))
+        x = F.tanh(self.dc6(h))
         return x
 
 
@@ -47,7 +47,7 @@ class Discriminator(chainer.Chain):
             self.c3 = L.Convolution2D(24, 48, 4, 2, 1)
             self.c4 = L.Convolution2D(48, 96, 4, 2, 1)
             self.c5 = L.Convolution2D(96, 192, 4, 2, 1)
-            self.l6 = L.Linear(192*4*4, 1)
+            self.l6 = L.Linear(192*4*4, 2)
             self.bn1 = L.BatchNormalization(12)
             self.bn2 = L.BatchNormalization(24)
             self.bn3 = L.BatchNormalization(48)
