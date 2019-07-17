@@ -5,16 +5,17 @@ import chainer.links as L
 
 class Generator(chainer.Chain):
     def __init__(self, n_hidden=300):
+        w = chainer.initializers.Normal(0.02)
         super().__init__()
         with self.init_scope():
-            self.l0 = L.Linear(n_hidden, 4*4*384)
-            self.dc0 = L.Deconvolution2D(384, 192, 4, 2, 1)
-            self.dc1 = L.Deconvolution2D(192, 96, 4, 2, 1)
-            self.dc2 = L.Deconvolution2D(96, 48, 4, 2, 1)
-            self.dc3 = L.Deconvolution2D(48, 24, 4, 2, 1)
-            self.dc4 = L.Deconvolution2D(24, 12, 4, 2, 1)
-            self.dc5 = L.Deconvolution2D(12, 6, 4, 2, 1)
-            self.dc6 = L.Deconvolution2D(6, 3, 3, 1, 1)
+            self.l0 = L.Linear(n_hidden, 4*4*384, initialW=w)
+            self.dc0 = L.Deconvolution2D(384, 192, 4, 2, 1, initialW=w)
+            self.dc1 = L.Deconvolution2D(192, 96, 4, 2, 1, initialW=w)
+            self.dc2 = L.Deconvolution2D(96, 48, 4, 2, 1, initialW=w)
+            self.dc3 = L.Deconvolution2D(48, 24, 4, 2, 1, initialW=w)
+            self.dc4 = L.Deconvolution2D(24, 12, 4, 2, 1, initialW=w)
+            self.dc5 = L.Deconvolution2D(12, 6, 4, 2, 1, initialW=w)
+            self.dc6 = L.Deconvolution2D(6, 3, 3, 1, 1, initialW=w)
             self.bn_l0 = L.BatchNormalization(4*4*384)
             self.bn0 = L.BatchNormalization(192)
             self.bn1 = L.BatchNormalization(96)
@@ -39,15 +40,16 @@ class Generator(chainer.Chain):
 
 class Discriminator(chainer.Chain):
     def __init__(self):
+        w = chainer.initializers.Normal(0.02)
         super().__init__()
         with self.init_scope():
-            self.c0 = L.Convolution2D(3, 6, 4, 2, 1)
-            self.c1 = L.Convolution2D(6, 12, 4, 2, 1)
-            self.c2 = L.Convolution2D(12, 24, 4, 2, 1)
-            self.c3 = L.Convolution2D(24, 48, 4, 2, 1)
-            self.c4 = L.Convolution2D(48, 96, 4, 2, 1)
-            self.c5 = L.Convolution2D(96, 192, 4, 2, 1)
-            self.l6 = L.Linear(192*4*4, 2)
+            self.c0 = L.Convolution2D(3, 6, 4, 2, 1, initialW=w)
+            self.c1 = L.Convolution2D(6, 12, 4, 2, 1, initialW=w)
+            self.c2 = L.Convolution2D(12, 24, 4, 2, 1, initialW=w)
+            self.c3 = L.Convolution2D(24, 48, 4, 2, 1, initialW=w)
+            self.c4 = L.Convolution2D(48, 96, 4, 2, 1, initialW=w)
+            self.c5 = L.Convolution2D(96, 192, 4, 2, 1, initialW=w)
+            self.l6 = L.Linear(192*4*4, 2, initialW=w)
             self.bn1 = L.BatchNormalization(12)
             self.bn2 = L.BatchNormalization(24)
             self.bn3 = L.BatchNormalization(48)
