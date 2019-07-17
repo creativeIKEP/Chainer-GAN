@@ -8,11 +8,8 @@ import chainer
 def dataset_load(dataset_folder_path):
     dataset_path = os.path.join(dataset_folder_path, '*')
     image_files_path_list = glob.glob(dataset_path)
-    """
-    for path in image_files_path_list:
-        reshape_image(path, 256, 256)
-    """
     datasets = chainer.datasets.ImageDataset(image_files_path_list)
+    #(n, ch, h, w) 
     return datasets
 
 
