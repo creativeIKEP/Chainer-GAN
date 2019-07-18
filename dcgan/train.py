@@ -1,20 +1,23 @@
 import data_io
+import logGraph
 from net import Generator, Discriminator
+import json
+import datetime
+import os
+from PIL import Image
 import numpy as np
+import cupy as xp
 import chainer
+from chainer.serializers import save_npz
 from chainer import Variable
 from chainer.iterators import SerialIterator
 import chainer.functions as F
-import cupy as xp
-from PIL import Image
-import json
-from chainer.serializers import save_npz
 
 
 def train():
     dataset_folder_path = "dataset"
     n_hidden = 100
-    epoch_count = 4294967295
+    epoch_count = 3#4294967295
     batch_size = 55
 
     dataset = data_io.dataset_load(dataset_folder_path)
@@ -33,7 +36,18 @@ def train():
 
     iteration = 0
     train_iter.reset()
-    log_file = open('output/log.json' , 'w')
+
+    log_list = []
+    now_time = datetime.datetime.now()
+    folder_name = "{0:%Y-%m-%d_%H-%M}".format(now_time)
+    output_path = "output/" + folder_name + "/"
+    image_path = output_path + "image/"
+    dis_model_path = output_path + "dis/"
+    gen_model_path = output_path + "gen/"
+    os.mkdir(output_path)
+    os.mkdir(image_path)
+    os.mkdir(dis_model_path)
+    os.mkdir(gen_model_path)
 
     for epoch in range(epoch_count):
         d_loss_list = []
@@ -77,20 +91,28 @@ def train():
         generated_images = x_fake.array
         generated_images = generated_images.transpose(0, 2, 3, 1)
         Image.fromarray(np.clip(generated_images[0] * 255, 0.0, 255.0).astype(np.uint8)).save(
-                   "output/image/" + str(epoch)+".png")
+                   image_path + str(epoch)+".png")
 
-        log_json = {"epoch": str(epoch+1), "iteration": str(iteration), "d_loss": str(np.mean(d_loss_list)), "g_loss": str(np.mean(g_loss_list))}
-        json.dump(log_json, log_file, indent=4)
+        print("epoch: " + str(epoch) + ", interation: " + str(iteration) + ", d_loss: " + str(np.mean(d_loss_list)) + ", g_loss: " + str(np.mean(g_loss_list)))
 
-        print("epoch: " + str(epoch+1) + ", interation: " + str(iteration) + ", d_loss: " + str(np.mean(d_loss_list)) + ", g_loss: " + str(np.mean(g_loss_list)))
+        log_json = {"epoch": str(epoch), "iteration": str(iteration), "d_loss": str(np.mean(d_loss_list)), "g_loss": str(np.mean(g_loss_list))}
+        log_list.append(log_json)
+        with open(output_path + 'log.json', 'w') as log_file:
+            json.dump(log_list, log_file, indent=4)
 
         if(epoch % 100 == 0):
             dis.to_cpu()
-            save_npz('output/dis.npz', dis)
+            save_npz(dis_model_path + str(epoch) + '.npz', dis)
             gen.to_cpu()
-            save_npz('output/gen.npz', gen)
+            save_npz(gen_model_path + str(epoch) + '.npz', gen)
             gen.to_gpu(0)
             dis.to_gpu(0)
+
+    logGraph.save_log_graph(output_path + 'log.json', output_path + "lossGraph.png")
+    dis.to_cpu()
+    save_npz(dis_model_path + 'last.npz', dis)
+    gen.to_cpu()
+    save_npz(gen_model_path + 'last.npz', gen)
 
 
 def loss_dis(batchsize, y_real, y_fake):
