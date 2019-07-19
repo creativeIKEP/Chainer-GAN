@@ -17,7 +17,7 @@ import chainer.functions as F
 def train():
     dataset_folder_path = "dataset"
     n_hidden = 100
-    epoch_count = 3#4294967295
+    epoch_count = 4294967295
     batch_size = 55
 
     dataset = data_io.dataset_load(dataset_folder_path)
@@ -39,7 +39,7 @@ def train():
 
     log_list = []
     now_time = datetime.datetime.now()
-    folder_name = "{0:%Y-%m-%d_%H-%M}".format(now_time)
+    folder_name = "{0:%Y-%m-%d_%H-%M-%S}".format(now_time)
     output_path = "output/" + folder_name + "/"
     image_path = output_path + "image/"
     dis_model_path = output_path + "dis/"
@@ -69,13 +69,13 @@ def train():
             d_loss = loss_dis(batch_size, y_real, y_fake)
             g_loss = loss_gen(batch_size, y_fake)
 
-            gen.cleargrads()
-            g_loss.backward()
-            opt_gen.update()
-
             dis.cleargrads()
             d_loss.backward()
             opt_dis.update()
+
+            gen.cleargrads()
+            g_loss.backward()
+            opt_gen.update()
 
             d_loss.to_cpu()
             g_loss.to_cpu()
