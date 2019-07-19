@@ -1,6 +1,7 @@
 import data_io
 import logGraph
 from net import Generator, Discriminator
+import argparse
 import json
 import datetime
 import os
@@ -14,12 +15,7 @@ from chainer.iterators import SerialIterator
 import chainer.functions as F
 
 
-def train():
-    dataset_folder_path = "dataset"
-    n_hidden = 100
-    epoch_count = 4294967295
-    batch_size = 55
-
+def train(batch_size, epoch_count, dataset_folder_path, n_hidden, output_path):
     dataset = data_io.dataset_load(dataset_folder_path)
     train_iter = SerialIterator(dataset, batch_size, repeat=True, shuffle=True)
 
@@ -38,9 +34,6 @@ def train():
     train_iter.reset()
 
     log_list = []
-    now_time = datetime.datetime.now()
-    folder_name = "{0:%Y-%m-%d_%H-%M-%S}".format(now_time)
-    output_path = "output/" + folder_name + "/"
     image_path = output_path + "image/"
     dis_model_path = output_path + "dis/"
     gen_model_path = output_path + "gen/"
@@ -127,4 +120,20 @@ def loss_gen(batchsize, y_fake):
 
 
 if __name__ == '__main__':
-    train()
+    now_time = datetime.datetime.now()
+    folder_name = "{0:%Y-%m-%d_%H-%M-%S}".format(now_time)
+
+    parser = argparse.ArgumentParser(description='Chainer-GAN: dcgan')
+    parser.add_argument('--batchsize', '-b', type=int, default=55,
+                        help='Number of images in each mini-batch')
+    parser.add_argument('--epoch', '-e', type=int, default=10000,
+                        help='Number of sweeps over the dataset to train')
+    parser.add_argument('--dataset', '-d', default='dataset',
+                        help='Directory of dataset image files. Default is /Chainer-GAN/dcgan/dataset')
+    parser.add_argument('--n_hidden', '-z', type=int, default=100,
+                        help='Size of noise to input Generator')
+    parser.add_argument('--out', '-o', default='output/' + folder_name + "/",
+                        help='Directory to output the result. Default is /Chainer-GAN/dcgan/output/yyyy-mm-dd_HH-MM-SS')
+    args = parser.parse_args()
+    
+    train(args.batchsize, args.epoch, args.dataset, args.n_hidden, args.out)
