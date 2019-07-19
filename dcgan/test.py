@@ -22,8 +22,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Chainer-GAN: dcgan')
     parser.add_argument('-n_hidden', '-z', type=int, default=100,
                         help='Size of noise to input Generator. Please input same size when dcgan train')
-    parser.add_argument('-path', '-p'
+    parser.add_argument('-path', '-p', default=None,
                         help='Trained Generator path. Please input trained generator npz file path')
     args = parser.parse_args()
+    if args.path is None:
+        print("Please input trained generator npz file path.")
+        print("$ python test.py -path 'npz_file_path'")
+        exit()
 
     test(args.n_hidden, args.path)
