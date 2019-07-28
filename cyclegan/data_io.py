@@ -13,27 +13,5 @@ def dataset_load(dataset_folder_path):
     return datasets
 
 
-def reshape_image(image_path, width, height):
-    img = Image.open(image_path)
-    img_resize = img.resize((width, height))
-    img_resize.save(image_path)
-
-
-def combine_images(generated_images):
-    image_count = generated_images.shape[0]
-    width_count = int(math.sqrt(image_count))
-    height_count = int(math.ceil(float(image_count) / width_count))
-    width_shape = generated_images.shape[1]
-    height_shape = generated_images.shape[2]
-    combine_image = np.zeros((height_shape*height_count, width_shape*width_count, 3), dtype=generated_images.dtype)
-
-    index_count=0
-    for j in range(height_count):
-        for i in range(width_count):
-            if image_count<=index_count:
-                return combine_image
-            combine_image[j*height_shape:(j+1)*height_shape, i*width_shape:(i+1)*width_shape, :] = \
-                generated_images[index_count]
-            index_count += 1
-
-    return combine_image
+def output_images(real_a_images, fake_b_images, reconstr_a_images, real_b_images, fake_a_images, reconstr_b_images):
+    Image.fromarray(np.clip(generated_images[0] * 255, 0.0, 255.0).astype(np.uint8)).save(image_path + str(epoch)+".png")
