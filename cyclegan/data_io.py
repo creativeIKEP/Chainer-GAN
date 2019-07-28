@@ -2,6 +2,7 @@ import os
 import glob
 import numpy as np
 from PIL import Image
+import random
 import chainer
 
 
@@ -31,18 +32,9 @@ def output_images(image_path, real_a_images, fake_b_images, reconstr_a_images, r
     fake_a_image = np.clip(fake_a_image * 255, 0.0, 255.0).astype(np.uint8)
     reconstr_b_image = np.clip(reconstr_b_image * 255, 0.0, 255.0).astype(np.uint8)
 
-    a_w = real_a_image.shape[2]
-    a_h = real_a_image.shape[1]
-    b_w = real_b_image.shape[2]
-    b_h = real_b_image.shape[1]
-
-    dst = Image.new('RGB', (max(a_w*3, b_w*3), a_h + b_h), (1, 1, 1))
-    dst.paste(real_a_image, (0, 0))
-    dst.paste(fake_b_image, (a_w, 0))
-    dst.paste(reconstr_a_image, (a_w*2, 0))
-    dst.paste(real_b_image, (0, a_h))
-    dst.paste(fake_a_image, (b_w, a_h))
-    dst.paste(reconstr_b_image, (b_w*2, a_h))
-    dst.save(image_path + ".png")
-
-    Image.fromarray(np.clip(generated_images[0] * 255, 0.0, 255.0).astype(np.uint8)).save(image_path + str(epoch)+".png")
+    dst = np.concatenate([real_a_image, fake_b_image], 1)
+    dst = np.concatenate([dst, reconstr_a_image], 1)
+    dst2 = np.concatenate([real_b_image, fake_a_image], 1)
+    dst2 = np.concatenate([dst2, reconstr_b_image], 1)
+    result = np.concatenate([dst, dst2], 0)
+    Image.fromarray(result).save(image_path + ".png")

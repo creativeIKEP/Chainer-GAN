@@ -1,6 +1,16 @@
 import data_io
 from net import Generator, Discriminator
+import argparse
+import json
+import datetime
+import os
+import numpy as np
+import cupy as xp
 import chainer
+from chainer.serializers import save_npz
+from chainer import Variable
+from chainer.iterators import SerialIterator
+import chainer.functions as F
 
 
 def train(batch_size, epoch_count, lamda, datasetA_folder_path, datasetB_folder_path, output_path):
@@ -111,7 +121,7 @@ def train(batch_size, epoch_count, lamda, datasetA_folder_path, datasetB_folder_
             g_AB_loss_list.append(loss_g_ab.array)
             g_BA_loss_list.append(loss_g_ba.array)
 
-            if train_iter.is_new_epoch:
+            if train_iter_A.is_new_epoch or train_iter_B.is_new_epoch:
                 break
 
 
@@ -169,12 +179,30 @@ def loss_dis(batchsize, real_result, fake_result):
     real_loss = F.softmax_cross_entropy(real_result, Variable(xp.ones(batchsize, dtype=xp.int32)))
     fake_loss = F.softmax_cross_entropy(fake_result, Variable(xp.zeros(batchsize, dtype=xp.int32)))
     return real_loss + fake_loss
+    """
+    batchsize, ch, w, h = real_result.data.shape
+    real_result = F.sum(real_result, axis=(1, 2, 3)) / (ch*w*h)
+    batchsize, ch, w, h = fake_result.data.shape
+    fake_result = F.sum(fake_result, axis=(1, 2, 3)) / (ch*w*h)
+
+    real_loss = real_result * F.log(real_result)
+    fake_loss = fake_result * F.log(1 - fake_result)
+    return -(real_loss + fake_loss)
+    """
 
 
-def loss_gen(batchsize, d_fake_result, real_image, reconstr_image, lambda):
+def loss_gen(batchsize, d_fake_result, real_image, reconstr_image, lamda):
     adversarial_loss = F.softmax_cross_entropy(d_fake_result, Variable(xp.ones(batchsize, dtype=xp.int32)))
     cycle_consistency_loss = F.mean_absolute_error(reconstr_image, real_image)
-    return adversarial_loss + lambda * cycle_consistency_loss
+    return adversarial_loss + lamda * cycle_consistency_loss
+    """
+    batchsize, ch, w, h = d_fake_result.data.shape
+    d_fake_result = F.sum(d_fake_result, axis=(1, 2, 3)) / (ch*w*h)
+
+    adversarial_loss = d_fake_result * F.log(1 - d_fake_result)
+    cycle_consistency_loss = F.mean_absolute_error(reconstr_image, real_image)
+    return adversarial_loss + lamda * cycle_consistency_loss
+    """
 
 
 if __name__ == '__main__':
@@ -182,11 +210,11 @@ if __name__ == '__main__':
     folder_name = "{0:%Y-%m-%d_%H-%M-%S}".format(now_time)
 
     parser = argparse.ArgumentParser(description='Chainer-GAN: cyclegan')
-    parser.add_argument('--batchsize', '-b', type=int, default=55,
+    parser.add_argument('--batchsize', '-b', type=int, default=10,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=10000,
                         help='Number of sweeps over the dataset to train')
-    parser.add_argument('--lambda', '-l', type=float32, default=10.0,
+    parser.add_argument('--lamda', '-l', type=float, default=10.0,
                         help='Percentage of loss caluculation between "Cycle Consistency Loss" and "Adversarial Loss"')
     parser.add_argument('--datasetA', '-dA', default='dataset/datasetA',
                         help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/dataset/datasetA')
@@ -195,5 +223,4 @@ if __name__ == '__main__':
     parser.add_argument('--out', '-o', default='output/' + folder_name + "/",
                         help='Directory to output the result. Default is /Chainer-GAN/cyclegan/output/yyyy-mm-dd_HH-MM-SS')
     args = parser.parse_args()
-
-    train(args.batchsize, args.epoch, args.lambda, args.datasetA, args.datasetB, args.out)
+    train(args.batchsize, args.epoch, args.lamda, args.datasetA, args.datasetB, args.out)

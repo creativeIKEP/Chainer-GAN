@@ -57,6 +57,7 @@ class Discriminator(chainer.Chain):
             self.c2 = L.Convolution2D(128, 256, 4, 2, 1, initialW=w)
             self.c3 = L.Convolution2D(256, 512, 4, 2, 1, initialW=w)
             self.c4 = L.Convolution2D(512, 1, 4, 2, 1, initialW=w)
+            self.l1 = L.Linear(1*8*8, 2, initialW=w)
             self.bn1 = L.BatchNormalization(128)
             self.bn2 = L.BatchNormalization(256)
             self.bn3 = L.BatchNormalization(512)
@@ -67,4 +68,4 @@ class Discriminator(chainer.Chain):
         h = F.leaky_relu(self.bn1(self.c1(h)))
         h = F.leaky_relu(self.bn2(self.c2(h)))
         h = F.leaky_relu(self.bn3(self.c3(h)))
-        return self.c4(h)
+        return self.l1(self.c4(h))
