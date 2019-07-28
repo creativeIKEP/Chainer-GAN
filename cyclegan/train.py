@@ -183,10 +183,10 @@ if __name__ == '__main__':
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=10000,
                         help='Number of sweeps over the dataset to train')
-    parser.add_argument('--datasetA', '-dA', default='datasetA',
-                        help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/datasetA')
-    parser.add_argument('--datasetB', '-dB', default='datasetB',
-                        help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/datasetB')
+    parser.add_argument('--datasetA', '-dA', default='dataset/datasetA',
+                        help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/dataset/datasetA')
+    parser.add_argument('--datasetB', '-dB', default='dataset/datasetB',
+                        help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/dataset/datasetB')
     parser.add_argument('--out', '-o', default='output/' + folder_name + "/",
                         help='Directory to output the result. Default is /Chainer-GAN/cyclegan/output/yyyy-mm-dd_HH-MM-SS')
     args = parser.parse_args()
