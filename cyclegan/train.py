@@ -3,7 +3,7 @@ from net import Generator, Discriminator
 import chainer
 
 
-def train(batch_size, epoch_count, datasetA_folder_path, datasetB_folder_path, output_path):
+def train(batch_size, epoch_count, lamda, datasetA_folder_path, datasetB_folder_path, output_path):
     dataset_A = data_io.dataset_load(datasetA_folder_path)
     train_iter_A = SerialIterator(dataset_A, batch_size, repeat=True, shuffle=True)
     dataset_B = data_io.dataset_load(datasetB_folder_path)
@@ -88,8 +88,8 @@ def train(batch_size, epoch_count, datasetA_folder_path, datasetB_folder_path, o
 
 
             """generatorのloss計算"""
-            loss_g_ab = loss_gen()
-            loss_g_ba = loss_gen()
+            loss_g_ab = loss_gen(batch_size, d_b_fake_result, real_a, reconstr_a, lamda)
+            loss_g_ba = loss_gen(batch_size, d_a_fake_result, real_b, reconstr_b, lamda)
 
             g_ab.cleargrads()
             loss_g_ab.backward()
@@ -127,7 +127,7 @@ def train(batch_size, epoch_count, datasetA_folder_path, datasetB_folder_path, o
         real_b_images = real_b.array.transpose(0, 2, 3, 1)
         fake_a_images = fake_a.array.transpose(0, 2, 3, 1)
         reconstr_b_images = reconstr_b.array.transpose(0, 2, 3, 1)
-        data_io.output_images(real_a_images, fake_b_images, reconstr_a_images, real_b_images, fake_a_images, reconstr_b_images)
+        data_io.output_images(image_path + str(epoch), real_a_images, fake_b_images, reconstr_a_images, real_b_images, fake_a_images, reconstr_b_images)
 
         print("epoch: " + str(epoch) + ", interation: " + str(iteration) + \
             ", d_A_loss: " + str(np.mean(d_a_loss_list)) + ", d_B_loss: " + str(np.mean(d_b_loss_list)) + \
@@ -166,12 +166,15 @@ def train(batch_size, epoch_count, datasetA_folder_path, datasetB_folder_path, o
 
 
 def loss_dis(batchsize, real_result, fake_result):
-    return 1
+    real_loss = F.softmax_cross_entropy(real_result, Variable(xp.ones(batchsize, dtype=xp.int32)))
+    fake_loss = F.softmax_cross_entropy(fake_result, Variable(xp.zeros(batchsize, dtype=xp.int32)))
+    return real_loss + fake_loss
 
 
-def loss_gen():
-    return 1
-
+def loss_gen(batchsize, d_fake_result, real_image, reconstr_image, lambda):
+    adversarial_loss = F.softmax_cross_entropy(d_fake_result, Variable(xp.ones(batchsize, dtype=xp.int32)))
+    cycle_consistency_loss = F.mean_absolute_error(reconstr_image, real_image)
+    return adversarial_loss + lambda * cycle_consistency_loss
 
 
 if __name__ == '__main__':
@@ -183,6 +186,8 @@ if __name__ == '__main__':
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=10000,
                         help='Number of sweeps over the dataset to train')
+    parser.add_argument('--lambda', '-l', type=float32, default=10.0,
+                        help='Percentage of loss caluculation between "Cycle Consistency Loss" and "Adversarial Loss"')
     parser.add_argument('--datasetA', '-dA', default='dataset/datasetA',
                         help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/dataset/datasetA')
     parser.add_argument('--datasetB', '-dB', default='dataset/datasetB',
@@ -191,4 +196,4 @@ if __name__ == '__main__':
                         help='Directory to output the result. Default is /Chainer-GAN/cyclegan/output/yyyy-mm-dd_HH-MM-SS')
     args = parser.parse_args()
 
-    train(args.batchsize, args.epoch, args.datasetA, args.datasetB, args.out)
+    train(args.batchsize, args.epoch, args.lambda, args.datasetA, args.datasetB, args.out)
