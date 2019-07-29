@@ -25,12 +25,12 @@ def output_images(image_path, real_a_images, fake_b_images, reconstr_a_images, r
     fake_a_image = fake_a_images[b_image_index]
     reconstr_b_image = reconstr_b_images[b_image_index]
 
-    real_a_image = np.clip(real_a_image * 255, 0.0, 255.0).astype(np.uint8)
-    fake_b_image = np.clip(fake_b_image * 255, 0.0, 255.0).astype(np.uint8)
-    reconstr_a_image = np.clip(reconstr_a_image * 255, 0.0, 255.0).astype(np.uint8)
-    real_b_image = np.clip(real_b_image * 255, 0.0, 255.0).astype(np.uint8)
-    fake_a_image = np.clip(fake_a_image * 255, 0.0, 255.0).astype(np.uint8)
-    reconstr_b_image = np.clip(reconstr_b_image * 255, 0.0, 255.0).astype(np.uint8)
+    real_a_image = (real_a_image*128.0+128.0).astype(np.uint8)
+    fake_b_image =  (fake_b_image*128.0+128.0).astype(np.uint8)
+    reconstr_a_image =  (reconstr_a_image*128.0+128.0).astype(np.uint8)
+    real_b_image =  (real_b_image*128.0+128.0).astype(np.uint8)
+    fake_a_image =  (fake_a_image*128.0+128.0).astype(np.uint8)
+    reconstr_b_image =  (reconstr_b_image*128.0+128.0).astype(np.uint8)
 
     dst = np.concatenate([real_a_image, fake_b_image], 1)
     dst = np.concatenate([dst, reconstr_a_image], 1)
