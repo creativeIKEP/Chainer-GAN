@@ -10,23 +10,23 @@ class Generator(chainer.Chain):
         super().__init__()
         with self.init_scope():
             """down sampling"""
-            self.d0 = L.Convolution2D(3, 32, 4, 2, 1, initialW=w)
-            self.d1 = L.Convolution2D(32, 64, 4, 2, 1, initialW=w)
-            self.d2 = L.Convolution2D(64, 128, 4, 2, 1, initialW=w)
-            self.d3 = L.Convolution2D(128, 256, 4, 2, 1, initialW=w)
-            self.d_bn0 = L.BatchNormalization(32)
-            self.d_bn1 = L.BatchNormalization(64)
-            self.d_bn2 = L.BatchNormalization(128)
-            self.d_bn3 = L.BatchNormalization(256)
+            self.d0 = L.Convolution2D(3, 8, 4, 2, 1, initialW=w)
+            self.d1 = L.Convolution2D(8, 16, 4, 2, 1, initialW=w)
+            self.d2 = L.Convolution2D(16, 32, 4, 2, 1, initialW=w)
+            self.d3 = L.Convolution2D(32, 64, 4, 2, 1, initialW=w)
+            self.d_bn0 = L.BatchNormalization(8)
+            self.d_bn1 = L.BatchNormalization(16)
+            self.d_bn2 = L.BatchNormalization(32)
+            self.d_bn3 = L.BatchNormalization(64)
 
             """up sampling"""
-            self.u0 = L.Deconvolution2D(256, 128, 4, 2, 1, initialW=w)
-            self.u1 = L.Deconvolution2D(128*2, 64, 4, 2, 1, initialW=w)
-            self.u2 = L.Deconvolution2D(64*2, 32, 4, 2, 1, initialW=w)
-            self.u3 = L.Deconvolution2D(32*2, 3, 4, 2, 1, initialW=w)
-            self.u_bn0 = L.BatchNormalization(128)
-            self.u_bn1 = L.BatchNormalization(64)
-            self.u_bn2 = L.BatchNormalization(32)
+            self.u0 = L.Deconvolution2D(64, 32, 4, 2, 1, initialW=w)
+            self.u1 = L.Deconvolution2D(32*2, 16, 4, 2, 1, initialW=w)
+            self.u2 = L.Deconvolution2D(16*2, 8, 4, 2, 1, initialW=w)
+            self.u3 = L.Deconvolution2D(8*2, 3, 4, 2, 1, initialW=w)
+            self.u_bn0 = L.BatchNormalization(32)
+            self.u_bn1 = L.BatchNormalization(16)
+            self.u_bn2 = L.BatchNormalization(8)
 
 
     def forward(self, x):
@@ -52,15 +52,15 @@ class Discriminator(chainer.Chain):
         w = chainer.initializers.Normal(0.02)
         super().__init__()
         with self.init_scope():
-            self.c0 = L.Convolution2D(3, 64, 4, 2, 1, initialW=w)
-            self.c1 = L.Convolution2D(64, 128, 4, 2, 1, initialW=w)
-            self.c2 = L.Convolution2D(128, 256, 4, 2, 1, initialW=w)
-            self.c3 = L.Convolution2D(256, 512, 4, 2, 1, initialW=w)
-            self.c4 = L.Convolution2D(512, 1, 4, 2, 1, initialW=w)
+            self.c0 = L.Convolution2D(3, 8, 4, 2, 1, initialW=w)
+            self.c1 = L.Convolution2D(8, 16, 4, 2, 1, initialW=w)
+            self.c2 = L.Convolution2D(16, 32, 4, 2, 1, initialW=w)
+            self.c3 = L.Convolution2D(32, 64, 4, 2, 1, initialW=w)
+            self.c4 = L.Convolution2D(64, 1, 4, 2, 1, initialW=w)
             self.l1 = L.Linear(1*8*8, 2, initialW=w)
-            self.bn1 = L.BatchNormalization(128)
-            self.bn2 = L.BatchNormalization(256)
-            self.bn3 = L.BatchNormalization(512)
+            self.bn1 = L.BatchNormalization(16)
+            self.bn2 = L.BatchNormalization(32)
+            self.bn3 = L.BatchNormalization(64)
 
 
     def forward(self, x):
