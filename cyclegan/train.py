@@ -176,33 +176,17 @@ def train(batch_size, epoch_count, lamda, datasetA_folder_path, datasetB_folder_
 
 
 def loss_dis(batchsize, real_result, fake_result):
-    real_loss = F.softmax_cross_entropy(real_result, Variable(xp.ones(batchsize, dtype=xp.int32)))
-    fake_loss = F.softmax_cross_entropy(fake_result, Variable(xp.zeros(batchsize, dtype=xp.int32)))
-    return real_loss + fake_loss
-    """
     batchsize, ch, w, h = real_result.data.shape
-    real_result = F.sum(real_result, axis=(1, 2, 3)) / (ch*w*h)
-    batchsize, ch, w, h = fake_result.data.shape
-    fake_result = F.sum(fake_result, axis=(1, 2, 3)) / (ch*w*h)
-
-    real_loss = real_result * F.log(real_result)
-    fake_loss = fake_result * F.log(1 - fake_result)
-    return -(real_loss + fake_loss)
-    """
+    real_loss = F.mean_squared_error(real_result, Variable(xp.ones((batchsize, ch, w, h), dtype=xp.float32)))
+    fake_loss = F.mean_squared_error(fake_result, Variable(xp.zeros((batchsize, ch, w, h), dtype=xp.float32)))
+    return real_loss + fake_loss
 
 
 def loss_gen(batchsize, d_fake_result, real_image, reconstr_image, lamda):
-    adversarial_loss = F.softmax_cross_entropy(d_fake_result, Variable(xp.ones(batchsize, dtype=xp.int32)))
-    cycle_consistency_loss = F.mean_absolute_error(reconstr_image, real_image)
-    return adversarial_loss + lamda * cycle_consistency_loss
-    """
     batchsize, ch, w, h = d_fake_result.data.shape
-    d_fake_result = F.sum(d_fake_result, axis=(1, 2, 3)) / (ch*w*h)
-
-    adversarial_loss = d_fake_result * F.log(1 - d_fake_result)
+    adversarial_loss = F.mean_squared_error(d_fake_result, Variable(xp.ones((batchsize, ch, w, h), dtype=xp.float32)))
     cycle_consistency_loss = F.mean_absolute_error(reconstr_image, real_image)
     return adversarial_loss + lamda * cycle_consistency_loss
-    """
 
 
 if __name__ == '__main__':
