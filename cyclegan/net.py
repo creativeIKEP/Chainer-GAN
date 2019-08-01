@@ -43,8 +43,8 @@ class Generator(chainer.Chain):
         u2_in = F.concat((u1_out, d1_out), axis=1)
         u2_out = F.leaky_relu(self.u_bn2(self.u2(u2_in)))
         u3_in = F.concat((u2_out, d0_out), axis=1)
-        y = self.u3(u3_in)
-        return y
+        u4_out = self.u3(u3_in)
+        return F.tanh(u4_out)
 
 
 class Discriminator(chainer.Chain):
