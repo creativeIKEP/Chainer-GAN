@@ -39,7 +39,7 @@ def save_log_graph(log_path, save_path):
     genBALoss = []
 
     for data in logJson:
-        ddisALoss.append(float(data["d_A_loss"]))
+        disALoss.append(float(data["d_A_loss"]))
         disBLoss.append(float(data["d_B_loss"]))
         genABLoss.append(float(data["g_AB_loss"]))
         genBALoss.append(float(data["g_BA_loss"]))
