@@ -135,18 +135,18 @@ if __name__ == '__main__':
     now_time = datetime.datetime.now()
     folder_name = "{0:%Y-%m-%d_%H-%M-%S}".format(now_time)
 
-    parser = argparse.ArgumentParser(description='Chainer-GAN: cyclegan')
+    parser = argparse.ArgumentParser(description='Chainer-GAN: pix2pix')
     parser.add_argument('--batchsize', '-b', type=int, default=10,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=10000,
                         help='Number of sweeps over the dataset to train')
     parser.add_argument('--lamda', '-l', type=float, default=10.0,
-                        help='Percentage of loss caluculation between "Cycle Consistency Loss" and "Adversarial Loss"')
+                        help='Percentage of loss caluculation between "Consistency Loss" and "Adversarial Loss"')
     parser.add_argument('--datasetA', '-dA', default='dataset/datasetA',
-                        help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/dataset/datasetA')
+                        help='Directory of dataset image files. Default is /Chainer-GAN/pix2pix/dataset/datasetA')
     parser.add_argument('--datasetB', '-dB', default='dataset/datasetB',
-                        help='Directory of dataset image files. Default is /Chainer-GAN/cyclegan/dataset/datasetB')
+                        help='Directory of dataset image files. Default is /Chainer-GAN/pix2pix/dataset/datasetB')
     parser.add_argument('--out', '-o', default='output/' + folder_name + "/",
-                        help='Directory to output the result. Default is /Chainer-GAN/cyclegan/output/yyyy-mm-dd_HH-MM-SS')
+                        help='Directory to output the result. Default is /Chainer-GAN/pix2pix/output/yyyy-mm-dd_HH-MM-SS')
     args = parser.parse_args()
     train(args.batchsize, args.epoch, args.lamda, args.datasetA, args.datasetB, args.out)
