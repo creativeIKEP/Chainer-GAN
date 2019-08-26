@@ -97,7 +97,7 @@ def train(batch_size, epoch_count, lamda, datasetA_folder_path, datasetB_folder_
             ", d_loss: " + str(np.mean(d_loss_list)) + ", g_loss: " + str(np.mean(g_loss_list)))
 
         log_json = {"epoch": str(epoch), "interation": str(iteration), \
-            "d_loss": str(np.mean(d_loss_list)),"g_BA_loss": str(np.mean(g_loss_list))}
+            "d_loss": str(np.mean(d_loss_list)),"g_loss": str(np.mean(g_loss_list))}
         log_list.append(log_json)
         with open(output_path + 'log.json', 'w') as log_file:
             json.dump(log_list, log_file, indent=4)
